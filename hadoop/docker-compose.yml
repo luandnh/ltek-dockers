@@ -1,0 +1,67 @@
+version: '3'
+
+services:
+  hdfs-namenode:
+    image: apache/hadoop:3.4.1
+    platform: linux/amd64
+    container_name: hdfs-namenode
+    hostname: hdfs-namenode
+    user: root
+    environment:
+      - HADOOP_HOME=/opt/hadoop
+    volumes:
+      - ./config:/opt/hadoop/etc/hadoop
+      - ./scripts/start-hdfs.sh:/start-hdfs.sh
+      - ./hdfs_namenode:/hadoop/dfs/name
+    ports:
+      - "9870:9870"
+      - "9000:9000"
+    command: [ "/bin/bash", "/start-hdfs.sh" ]
+    networks:
+      hdfs_network:
+        ipv4_address: 172.30.0.10
+
+  hdfs-datanode-01:
+    image: apache/hadoop:3.4.1
+    platform: linux/amd64
+    container_name: hdfs-datanode-01
+    hostname: hdfs-datanode-01
+    user: root
+    environment:
+      - HADOOP_HOME=/opt/hadoop
+    volumes:
+      - ./config:/opt/hadoop/etc/hadoop
+      - ./scripts/init-datanode.sh:/init-datanode.sh
+      - ./hdfs_datanode_01:/hadoop/dfs/data
+    depends_on:
+      - hdfs-namenode
+    command: [ "/bin/bash", "/init-datanode.sh" ]
+    networks:
+      hdfs_network:
+        ipv4_address: 172.30.0.11
+
+  hdfs-datanode-02:
+    image: apache/hadoop:3.4.1
+    platform: linux/amd64
+    container_name: hdfs-datanode-02
+    hostname: hdfs-datanode-02
+    user: root
+    environment:
+      - HADOOP_HOME=/opt/hadoop
+    volumes:
+      - ./config:/opt/hadoop/etc/hadoop
+      - ./scripts/init-datanode.sh:/init-datanode.sh
+      - ./hdfs_datanode_02:/hadoop/dfs/data
+    depends_on:
+      - hdfs-namenode
+    command: [ "/bin/bash", "/init-datanode.sh" ]
+    networks:
+      hdfs_network:
+        ipv4_address: 172.30.0.12
+
+networks:
+  hdfs_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16

@@ -1,0 +1,138 @@
+# HDFS Cluster with Docker Compose
+
+This project provides a simple way to deploy an Apache Hadoop HDFS cluster (one NameNode, two DataNodes) using Docker Compose. It is designed for development, testing, and learning purposes.
+
+---
+
+## Table of Contents
+
+- [HDFS Cluster with Docker Compose](#hdfs-cluster-with-docker-compose)
+  - [Table of Contents](#table-of-contents)
+  - [Project Structure](#project-structure)
+  - [Prerequisites](#prerequisites)
+  - [Quick Start](#quick-start)
+  - [Configuration Details](#configuration-details)
+  - [Cluster Management](#cluster-management)
+  - [Useful Commands](#useful-commands)
+  - [Troubleshooting](#troubleshooting)
+  - [References](#references)
+
+---
+
+## Project Structure
+
+```plain
+.
+├── docker-compose.yml
+├── config/
+│   ├── core-site.xml
+│   └── hdfs-site.xml
+├── scripts/
+│   ├── start-hdfs.sh
+│   └── init-datanode.sh
+├── hdfs_namenode/
+├── hdfs_datanode_01/
+└── hdfs_datanode_02/
+```
+
+---
+
+## Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) (version 20+ recommended)
+- [Docker Compose](https://docs.docker.com/compose/) (version 1.29+ recommended)
+- At least 4GB RAM available
+
+---
+
+## Quick Start
+
+1. **Clone this repository:**
+
+   ```bash
+   git clone
+   cd
+   ```
+
+2. **Create required directories for persistent storage (if not already present):**
+
+   ```bash
+   mkdir -p hdfs_namenode hdfs_datanode_01 hdfs_datanode_02
+   ```
+
+3. **Start the cluster:**
+
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Access the HDFS NameNode UI:**
+   - Open your browser and go to: [http://localhost:9870](http://localhost:9870)
+
+---
+
+## Configuration Details
+
+- **Hadoop Version:** 3.4.1
+- **NameNode Hostname:** `hdfs-namenode`
+- **DataNode Hostnames:** `hdfs-datanode-01`, `hdfs-datanode-02`
+- **HDFS Ports:** 9870 (UI), 9000 (RPC)
+- **Replication Factor:** 1 (can be changed in `config/hdfs-site.xml`)
+- **Custom Scripts:**
+  - `scripts/start-hdfs.sh`: Formats NameNode if needed, then starts it.
+  - `scripts/init-datanode.sh`: Sets permissions and starts DataNode.
+
+---
+
+## Cluster Management
+
+- **Start Cluster:**  
+  `docker-compose up -d`
+- **Stop Cluster:**  
+  `docker-compose down`
+- **View Logs:**  
+  `docker-compose logs -f`
+
+---
+
+## Useful Commands
+
+- **Access a container shell:**
+
+  ```bash
+  docker exec -it hdfs-namenode bash
+  docker exec -it hdfs-datanode-01 bash
+  docker exec -it hdfs-datanode-02 bash
+  ```
+
+- **Run HDFS commands (inside NameNode container):**
+  
+  ```bash
+  hdfs dfs -ls /
+  hdfs dfs -mkdir /data
+  hdfs dfs -put  /data/
+  ```
+
+---
+
+## Troubleshooting
+
+- **NameNode fails to start?**
+
+  - Check if `hdfs_namenode` directory is writable.
+  - Review logs: `docker-compose logs hdfs-namenode`
+
+- **DataNode fails to connect?**
+
+  - Ensure network settings in `docker-compose.yml` are correct.
+  - Check permissions on `hdfs_datanode_01` and `hdfs_datanode_02` directories.
+
+- **Ports already in use?**
+  - Change the mapped ports in `docker-compose.yml`.
+
+---
+
+## References
+
+- [Apache Hadoop Documentation](https://hadoop.apache.org/docs/)
+- [Docker Compose Documentation](https://docs.docker.com/compose/)
